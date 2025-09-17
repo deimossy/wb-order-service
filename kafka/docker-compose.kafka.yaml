@@ -1,0 +1,52 @@
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+      - infra-net
+
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: kafka
+    env_file:
+      - .env.kafka
+    ports:
+      - "9092:9092" # external
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+      - infra-net
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  topics-init:
+    image: bitnami/kafka:3.7
+    container_name: kafka-topics-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    env_file:
+      - .env.kafka
+    volumes:
+      - ./scripts/init-topics.sh:/scripts/init-topics.sh:ro
+    entrypoint: ["/bin/bash", "/scripts/init-topics.sh"]
+    networks:
+      - kafka-net
+      - infra-net
+
+volumes:
+  kafka_data:
+
+networks:
+  kafka-net:
+  infra-net:
+    external: true
