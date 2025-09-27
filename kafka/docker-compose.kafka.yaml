@@ -16,7 +16,7 @@ services:
     env_file:
       - .env.kafka
     ports:
-      - "9092:9092" # external
+      - "9092:9092"
     depends_on:
       - zookeeper
     networks:
