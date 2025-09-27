@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Order Lookup</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto;}
+    input, button { padding: 8px; font-size: 16px; }
+    pre { background:#f6f6f6; padding: 12px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1>Order Lookup</h1>
+  <div>
+    <input id="orderId" placeholder="Enter order_uid" style="width: 60%"/>
+    <button id="fetchBtn">Fetch</button>
+  </div>
+  <h3>Result</h3>
+  <div id="result"><pre id="json"></pre></div>
+
+  <script>
+    document.getElementById('fetchBtn').addEventListener('click', async () => {
+      const id = document.getElementById('orderId').value.trim();
+      if (!id) return alert('Enter order id');
+      const url = `/order/${encodeURIComponent(id)}`;
+      document.getElementById('json').textContent = 'Loading...';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          document.getElementById('json').textContent = `Error: ${res.status} ${res.statusText}`;
+          return;
+        }
+        const json = await res.json();
+        document.getElementById('json').textContent = JSON.stringify(json, null, 2);
+      } catch (err) {
+        document.getElementById('json').textContent = 'Fetch error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
