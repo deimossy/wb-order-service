@@ -13,12 +13,13 @@ RUN go build -o app ./cmd/order_service
 
 FROM alpine:latest
 
-RUN apk add --no-cache bash postgresql-client
+RUN apk add --no-cache bash postgresql-client jq
 
 WORKDIR /app
 
 COPY --from=builder /app/app .
 COPY scripts/wait_for_postgres.sh /wait_for_postgres.sh
+COPY ui ./ui
 RUN chmod +x /wait_for_postgres.sh
 
 CMD ["./app"]
